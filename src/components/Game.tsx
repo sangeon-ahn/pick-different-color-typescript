@@ -12,8 +12,8 @@ interface GameState {
   stage: number,
   score: number,
   tiles: Array<{id: string}>,
-  correctTileId: string,
-  randomRgb: Array<number>,
+  answerTileId: string,
+  normalTileRgb: Array<number>,
   timeCount: number
 }
 
@@ -30,8 +30,8 @@ const initialState = {
     { id: '3' },
     { id: '4' }
   ],
-  correctTileId: createRandomId(INITIAL_NUMBER_OF_TILES),
-  randomRgb: createRandomColor(),
+  answerTileId: createRandomId(INITIAL_NUMBER_OF_TILES),
+  normalTileRgb: createRandomColor(),
   timeCount: INITIAL_TIME_COUNT,
 } as GameState;
 
@@ -47,7 +47,7 @@ const GameBlock = styled.div`
 function Game() {
   const [state, setState] = useState<GameState>(initialState);
 
-  const { tiles, stage, correctTileId, randomRgb, timeCount, score } = state;
+  const { tiles, stage, answerTileId, normalTileRgb, timeCount, score } = state;
 
   const numberOfTiles = useRef<number>(INITIAL_NUMBER_OF_TILES);
 
@@ -57,8 +57,8 @@ function Game() {
 
       setState({
         ...initialState,
-        correctTileId: createRandomId(INITIAL_NUMBER_OF_TILES),
-        randomRgb: createRandomColor(),
+        answerTileId: createRandomId(INITIAL_NUMBER_OF_TILES),
+        normalTileRgb: createRandomColor(),
       });
 
       numberOfTiles.current = INITIAL_NUMBER_OF_TILES;
@@ -76,7 +76,7 @@ function Game() {
   const handleGameBoardClick = useCallback((e: MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLDivElement;
 
-    if (target.id !== correctTileId) {
+    if (target.id !== answerTileId) {
       setState(state => ({
         ...state,
         timeCount: state.timeCount - PENALTY_TIME < 0 ? 0 : state.timeCount - PENALTY_TIME
@@ -96,8 +96,8 @@ function Game() {
 
       return {
         ...state,
-        correctTileId: createRandomId(numberOfTiles.current),
-        randomRgb: createRandomColor(),
+        answerTileId: createRandomId(numberOfTiles.current),
+        normalTileRgb: createRandomColor(),
         stage: state.stage + 1,
         tiles: newTiles,
         timeCount: INITIAL_TIME_COUNT,
@@ -106,7 +106,7 @@ function Game() {
     });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [correctTileId]);
+  }, [answerTileId]);
 
   return (
     <GameBlock>
@@ -117,8 +117,8 @@ function Game() {
       />
       <GameBoard
         stage={stage}
-        randomRgb={randomRgb}
-        correctTileId={correctTileId}
+        normalTileRgb={normalTileRgb}
+        answerTileId={answerTileId}
         tiles={tiles}
         handleGameBoardClick={handleGameBoardClick}
         numberOfTiles={numberOfTiles.current}

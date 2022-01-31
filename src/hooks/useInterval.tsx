@@ -14,8 +14,8 @@ function useInterval(callback: () => any, delay: number) {
       }
     }
 
-    let id = setInterval(tick, delay);
-    return () => clearInterval(id);
+    let timerId = setInterval(tick, delay);
+    return () => clearInterval(timerId);
   }, [delay]);
 }
 
