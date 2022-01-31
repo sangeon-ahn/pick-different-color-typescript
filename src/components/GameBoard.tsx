@@ -5,7 +5,7 @@ import type { ReactElement, HTMLAttributes } from 'react';
 
 const EASY_MODE = 3.0;
 const NORMAL_MODE = 2.0;
-const HARD_MODE = 1.5;
+const HARD_MODE = 1;
 
 const GameBoardBlock = styled.div`
   position: relative;
