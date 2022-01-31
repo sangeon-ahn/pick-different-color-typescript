@@ -1,5 +1,10 @@
-import { ReactElement } from "react";
 import styled from "styled-components";
+
+type ScoreProps = {
+  stage: number,
+  timeCount: number,
+  score: number
+}
 
 const ScoreBoardBlock = styled.div`
   position: relative;
@@ -24,14 +29,7 @@ const ScoreBoardBlock = styled.div`
   }
 `;
 
-type ScoreProps = {
-  stage: number,
-  timeCount: number,
-  score: number
-}
-
-const ScoreBoard = ({ stage, timeCount, score }: ScoreProps): ReactElement => {
-
+function ScoreBoard({ stage, timeCount, score }: ScoreProps) {
   return (
     <ScoreBoardBlock>
       <div>스테이지 {stage}</div>

@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import React from 'react';
+import React, { MouseEvent } from 'react';
 import GameBoard from "./GameBoard";
 import ScoreBoard from './ScoreBoard';
 import createRandomColor from "../utils/createRandomColor";
@@ -8,18 +8,18 @@ import createEndMessage from "../utils/createEndMessage";
 import useInterval from "../hooks/useInterval";
 import styled from 'styled-components';
 
-const INITIAL_NUMBER_OF_TILES: number = 4;
-const INITIAL_TIME_COUNT: number = 15;
-const PENALTY_TIME: number = 3
-
 interface GameState {
   stage: number,
   score: number,
   tiles: Array<{id: string}>,
-  randomId: string,
-  randomRgbList: Array<number>,
+  correctTileId: string,
+  randomRgb: Array<number>,
   timeCount: number
 }
+
+const INITIAL_NUMBER_OF_TILES: number = 4;
+const INITIAL_TIME_COUNT: number = 15;
+const PENALTY_TIME: number = 3
 
 const initialState = {
   stage: 1,
@@ -30,8 +30,8 @@ const initialState = {
     { id: '3' },
     { id: '4' }
   ],
-  randomId: createRandomId(INITIAL_NUMBER_OF_TILES),
-  randomRgbList: createRandomColor(),
+  correctTileId: createRandomId(INITIAL_NUMBER_OF_TILES),
+  randomRgb: createRandomColor(),
   timeCount: INITIAL_TIME_COUNT,
 } as GameState;
 
@@ -44,12 +44,12 @@ const GameBlock = styled.div`
   align-items: center;
 `;
 
-const Game = () => {
-  const [state, setState] = useState(initialState);
+function Game() {
+  const [state, setState] = useState<GameState>(initialState);
 
-  const { tiles, stage, randomId, randomRgbList, timeCount, score } = state;
+  const { tiles, stage, correctTileId, randomRgb, timeCount, score } = state;
 
-  const numberOfTiles = useRef(INITIAL_NUMBER_OF_TILES);
+  const numberOfTiles = useRef<number>(INITIAL_NUMBER_OF_TILES);
 
   useInterval(() => {
     if (timeCount <= 0) {
@@ -57,8 +57,8 @@ const Game = () => {
 
       setState({
         ...initialState,
-        randomId: createRandomId(INITIAL_NUMBER_OF_TILES),
-        randomRgbList: createRandomColor(),
+        correctTileId: createRandomId(INITIAL_NUMBER_OF_TILES),
+        randomRgb: createRandomColor(),
       });
 
       numberOfTiles.current = INITIAL_NUMBER_OF_TILES;
@@ -73,9 +73,10 @@ const Game = () => {
 
   }, 1000);
 
-  const handleGameBoardClick = useCallback((e) => {
-    if (e.target.id !== randomId) {
-      console.log('diff: ', e.target.id, randomId);
+  const handleGameBoardClick = useCallback((e: MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLDivElement;
+
+    if (target.id !== correctTileId) {
       setState(state => ({
         ...state,
         timeCount: state.timeCount - PENALTY_TIME < 0 ? 0 : state.timeCount - PENALTY_TIME
@@ -83,7 +84,7 @@ const Game = () => {
 
       return null;
     }
-    console.log('same');
+
     numberOfTiles.current = Math.pow(Math.round((stage + 1 + 0.5) / 2) + 1, 2);
 
     setState(state => {
@@ -95,8 +96,8 @@ const Game = () => {
 
       return {
         ...state,
-        randomId: createRandomId(numberOfTiles.current),
-        randomRgbList: createRandomColor(),
+        correctTileId: createRandomId(numberOfTiles.current),
+        randomRgb: createRandomColor(),
         stage: state.stage + 1,
         tiles: newTiles,
         timeCount: INITIAL_TIME_COUNT,
@@ -105,7 +106,7 @@ const Game = () => {
     });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [randomId]);
+  }, [correctTileId]);
 
   return (
     <GameBlock>
@@ -116,8 +117,8 @@ const Game = () => {
       />
       <GameBoard
         stage={stage}
-        randomRgbList={randomRgbList}
-        randomId={randomId}
+        randomRgb={randomRgb}
+        correctTileId={correctTileId}
         tiles={tiles}
         handleGameBoardClick={handleGameBoardClick}
         numberOfTiles={numberOfTiles.current}

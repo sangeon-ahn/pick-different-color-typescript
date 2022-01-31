@@ -1,7 +1,23 @@
 import styled from 'styled-components';
 import React from 'react';
 import { useState } from 'react';
-import type { ReactElement, HTMLAttributes } from 'react';
+
+interface ITileStyleProps {
+  numberOfTiles: number,
+  correctTileId?: string,
+  randomRgb?: number[],
+  similarRgbList?: number[],
+  id?: string
+}
+
+interface IGameBoardProps {
+  stage: number,
+  randomRgb: number[],
+  correctTileId: string,
+  tiles: Array<{id: string}>,
+  handleGameBoardClick: React.MouseEventHandler<HTMLDivElement>,
+  numberOfTiles: number,
+}
 
 const EASY_MODE = 3.0;
 const NORMAL_MODE = 2.0;
@@ -15,22 +31,14 @@ const GameBoardBlock = styled.div`
   flex-wrap: wrap;
 `;
 
-interface TileProps extends HTMLAttributes<HTMLElement> {
-  numberOfTiles: number,
-  randomId?: string,
-  randomRgbList?: number[],
-  similarRgbList?: number[],
-  id?: string
-}
-
-const TileBlock = styled.div<TileProps>`
+const TileBlock = styled.div<ITileStyleProps>`
   position: relative;
   width: ${props => (360 / Math.sqrt(props.numberOfTiles)) - 4}px;
   height: ${props => (360 / Math.sqrt(props.numberOfTiles)) - 4}px;
   margin: 2px;
-  background-color: ${props => props.id === props.randomId ?
+  background-color: ${props => props.id === props.correctTileId ?
     `rgb(${props.similarRgbList})` :
-    `rgb(${props.randomRgbList})`
+    `rgb(${props.randomRgb})`
   };
   cursor: pointer;
 `;
@@ -54,29 +62,20 @@ const ButtonsContainer = styled.div`
   }
 `;
 
-interface Props {
-  stage: number,
-  randomRgbList: number[],
-  randomId: string,
-  tiles: Array<{id: string}>,
-  handleGameBoardClick: React.MouseEventHandler<HTMLDivElement>,
-  numberOfTiles: number,
-}
-
-const GameBoard = React.memo(({
+function GameBoard({
   stage,
-  randomRgbList,
-  randomId,
+  randomRgb,
+  correctTileId,
   tiles,
   handleGameBoardClick,
   numberOfTiles
-}: Props): ReactElement => {
-  const [red, green, blue] = randomRgbList;
-  const [difficulty, setDifficulty] = useState(HARD_MODE);
+}: IGameBoardProps) {
+  const [difficulty, setDifficulty] = useState<number>(HARD_MODE);
 
-  const createAnswerTileRgbList: () => number[] =() => {
+  const createAnswerTileRgbList = () => {
+    const colorCoefficient = Math.pow((stage - 0.5) / stage, difficulty);
 
-    return [Math.pow((stage - 0.5)/stage, difficulty) * red, Math.pow((stage - 0.5)/stage, difficulty) * green, Math.pow((stage - 0.5)/stage, difficulty) * blue];
+    return randomRgb.map(color => colorCoefficient * color);
   };
 
   return (
@@ -89,8 +88,8 @@ const GameBoard = React.memo(({
             key={tile.id}
             id={tile.id}
             numberOfTiles={numberOfTiles}
-            randomId={randomId}
-            randomRgbList={randomRgbList}
+            correctTileId={correctTileId}
+            randomRgb={randomRgb}
             similarRgbList={createAnswerTileRgbList()}
           />
         );
@@ -102,7 +101,7 @@ const GameBoard = React.memo(({
       </ButtonsContainer>
     </GameBoardBlock>
   );
-});
+};
 
-export default GameBoard;
+export default React.memo(GameBoard);
 

@@ -1,6 +1,6 @@
 import Game from './components/Game';
 
-function App(): JSX.Element {
+function App() {
   return <Game />;
 }
 
